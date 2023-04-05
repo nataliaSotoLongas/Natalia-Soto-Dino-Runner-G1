@@ -16,3 +16,7 @@ class Score(Sprite):
         text_rect = text.get_rect()
         text_rect.center = (1000, 50)
         screen.blit(text, text_rect)
+    
+    # Metodo para resetear tiempo    
+    def reset(self):
+        self.score = 0
