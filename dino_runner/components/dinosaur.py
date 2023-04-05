@@ -1,7 +1,7 @@
 import pygame
 from pygame import Surface
 from pygame.sprite import Sprite
-from dino_runner.utils.constants import RUNNING , JUMPING , DUCKING
+from dino_runner.utils.constants import RUNNING , JUMPING , DUCKING ,DEAD
 
 DINO_JUMPING = "JUMPING"
 DINO_RUNNING = "RUNNING"
@@ -72,5 +72,14 @@ class Dinosaur(Sprite):
         
     def draw(self, screen:Surface):
         screen.blit(self.image, (self.rect.x, self.rect.y))
+        
+        
+    def dead(self):
+        #TRAER LA IMAGEN DE DEAD
+        self.image=DEAD
+        pygame.mixer.music.load('dino_runner/components/music/dead.mp3')
+        pygame.mixer.music.play()
+        
+    
     
    
