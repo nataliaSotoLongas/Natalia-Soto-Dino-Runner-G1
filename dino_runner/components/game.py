@@ -41,7 +41,7 @@ class Game:
     #metodo para recetar el juego   
     def reset(self):
         self.obstacle_manager.reset()
-        self.power_up_manager.reset()
+        self.power_up_manager.reset(self.player)
         self.score.reset()
         self.game_speed = 20
         self.colors = 0
@@ -67,8 +67,8 @@ class Game:
         self.player.update(user_input)
         self.obstacle_manager.update(self, self.on_death)  
         self.score.update(self)
-        self.power_up_manager.update(self.game_speed, self.score , self.player)  
-    
+        self.power_up_manager.update(self.game_speed, self.score.score , self.player)
+        
     def draw(self):
         self.clock.tick(FPS)
         self.screen.fill((255,255,255))
@@ -77,9 +77,9 @@ class Game:
         #llamamos las imagenes
         self.draw_clouds()
         self.player.draw(self.screen)
-        self.player.draw_power_up(self.message)
+        self.player.draw_power_up(self.message,self.colors)
         self.obstacle_manager.draw(self.screen)
-        self.score.draw(self.colors,self.screen) # dibujar el cambio de color
+        self.score.draw(self.colors,self.message) # dibujar el cambio de color
         self.power_up_manager.draw(self.screen) 
         pygame.display.update()
         pygame.display.flip()
@@ -120,9 +120,11 @@ class Game:
         self.x_pos_bg -= self.game_speed
         
     def on_death(self):
-        pygame.time.delay(500)
-        self.playing = False
-        self.death_count +=1
+        if self.player.type != SHIELD_TYPE:
+            self.player.dead() #llamar la imagen
+            pygame.time.delay(100) #al tocar el obstaculo 
+            self.playing = False
+            self.death_count +=1
     
     #para hacer caminar el dinosaurio en el menu   
     def Icon_walk(self):
@@ -140,21 +142,21 @@ class Game:
             self.screen.blit(GAMEOVER, (half_screen_width -370, half_screen_height - 140,))
             self.screen.blit(RESET, (half_screen_width - 50, half_screen_height - 70,))
             self.update_highest_score() # definir el mayor puntaje
-            self.message("Game over. Press any key to reset", half_screen_width, half_screen_height +50)
-            self.message(f"Your Score: {self.score.score}", half_screen_width, half_screen_height +85)
-            self.message(f"Highest Score: {self.highest_score}", half_screen_width,half_screen_height +120)
-            self.message(f"Total Deaths: {self.death_count}", half_screen_width,half_screen_height  +155)
+            self.message("Game over. Press any key to reset", half_screen_width, half_screen_height +50, (0,0,0),30)
+            self.message(f"Your Score: {self.score.score}", half_screen_width, half_screen_height +85, (0,0,0),30)
+            self.message(f"Highest Score: {self.highest_score}", half_screen_width,half_screen_height +120, (0,0,0),30)
+            self.message(f"Total Deaths: {self.death_count}", half_screen_width,half_screen_height  +155, (0,0,0),30)
         else:
             self.Icon_walk()
             self.screen.blit(self.icon,(half_screen_width -90, half_screen_height -200))
-            self.message("Predd any key to start the game",half_screen_width -30, half_screen_height +50)
+            self.message("Predd any key to start the game",half_screen_width -30, half_screen_height +50, (0,0,0),30)
         pygame.display.flip()
         self.menu_events()
       
      #crear metodo para traer la posicion y dibujar  clase   
-    def message (self ,menssage,x,y):
-        font = pygame.font.Font("freesansbold.ttf" ,30)
-        text = font.render(menssage, True, (0,0,0))
+    def message (self ,menssage,x,y,colors,tamaño):
+        font = pygame.font.Font("freesansbold.ttf" ,tamaño)
+        text = font.render(menssage, True, colors)
         text_rect = text.get_rect()
         text_rect.center = (x,y)
         self.screen.blit(text, text_rect)

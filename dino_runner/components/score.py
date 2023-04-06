@@ -11,16 +11,12 @@ class Score(Sprite):
             game.game_speed += 2
             
     #color para la letra del score        
-    def draw(self,colors, screen):
-        font = pygame.font.Font("freesansbold.ttf" ,22)
+    def draw(self,colors, message):
         if colors >= 200:
-            text = font.render(f'Score: {self.score}' ,True, (255,255,255)) # blanca
+            message(f'Score: {self.score}', 1000, 50,(255,255,255),22 )
         else:
-            text = font.render(f'Score: {self.score}' ,True, (0,0,0)) #negra
-        text_rect = text.get_rect()
-        text_rect.center = (1000, 50)
-        screen.blit(text, text_rect)
-    
+            message(f'Score: {self.score}', 1000, 50,(0,0,0) ,22)
+            
     # Metodo para resetear tiempo    
     def reset(self):
         self.score = 0

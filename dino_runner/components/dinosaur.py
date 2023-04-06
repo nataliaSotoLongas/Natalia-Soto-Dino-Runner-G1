@@ -19,13 +19,14 @@ class Dinosaur(Sprite):
     
     def __init__(self):
         self.type = DEFAULT_TYPE
-        self.update_image(IMG_RUNNING[self.type][0])
+        self.update_image(IMG_DUCKING[self.type][0])
         self.image = RUNNING[0]
         self.position()
         self.step = 0
         self.action = DINO_RUNNING 
         self.jump_velocity = self.JUMPING_VELOCITY
         self.power_up_time = 0
+        self.time_to_show = 0
         
     def position(self):
         self.rect = self.image.get_rect()
@@ -62,13 +63,14 @@ class Dinosaur(Sprite):
         
     def jump(self):
         #jump
-        self.update_image(IMG_JUMPING[self.type][self.step // 5])
-        self.rect.y -= self.jump_velocity * 4
+        pos_y =  self.rect.y - self.jump_velocity * 4
+        self.update_image(IMG_JUMPING[self.type], pos_y=pos_y)
         self.jump_velocity -= 0.8
         if self.jump_velocity < -self.JUMPING_VELOCITY:
             self.action = DINO_RUNNING
             self.rect.y = self.POS_Y
             self.jump_velocity = self.JUMPING_VELOCITY
+        
             
     def duck(self):
         #bajar
@@ -92,20 +94,22 @@ class Dinosaur(Sprite):
         self.image=DEAD
         pygame.mixer.music.load('dino_runner/components/music/dead.mp3')
         pygame.mixer.music.play()
-        
-
+    
     def on_pick_power_up(self, power_up):
         self.type =  power_up.type
-        self.power_up_time_up = power_up.start_time + power_up.duration * 1000
+        
     
-    def draw_power_up(self, message):
+    def draw_power_up(self, message, colors):
         if self.type != DEFAULT_TYPE:
-            time_to_show = round(
-                (self.power_up_time_up - pygame.time.get_ticks()) / 1000, 2)
-        if time_to_show >= 0:
-            message(f"{self.type.capitalize()} enabled for {time_to_show} seconds.", 500, 50)
-        else:
-            self.type = DEFAULT_TYPE
-            self.power_up_time_up = 0
+            self.time_to_show += 1
+            pygame.time.delay(20)
+            if self.time_to_show <= 100:
+                if colors >= 200:
+                    message(f"{self.type.capitalize()} enabled for {self.time_to_show} seconds", 900, 80,(255,255,255),22 )
+                else:
+                    message(f"{self.type.capitalize()} enabled for {self.time_to_show} seconds", 900, 80,(0,0,0) ,22)
+                if self.time_to_show >= 100:
+                    self.time_to_show = 0
+                    self.type = DEFAULT_TYPE
     
    

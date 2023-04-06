@@ -18,8 +18,6 @@ class ObstacleManager():
     for obstacle in self.obstacles:
       obstacle.update(game.game_speed, self.obstacles)
       if obstacle.rect.colliderect(game.player.rect):
-        game.player.dead() #llamar la imagen
-        pygame.time.delay(100) #al tocar el obstaculo 
         on_death()
   
   def draw(self, screen):
