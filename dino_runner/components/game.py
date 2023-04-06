@@ -4,7 +4,7 @@ from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.score import Score
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 from dino_runner.components.power_ups.power_up_manager import PowerUpManager
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, CLOUD, GAMEOVER, RESET , ICON_1 , SUN, MOON,STAR, SHIELD_TYPE
+from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, CLOUD, GAMEOVER, RESET , ICON_1 , SUN, MOON,STAR, SHIELD_TYPE, HAMMER_TYPE, HEART_TYPE,HAMMER_LIST
 
 
 class Game:
@@ -43,6 +43,7 @@ class Game:
         self.obstacle_manager.reset()
         self.power_up_manager.reset(self.player)
         self.score.reset()
+        self.player.POS_X = 80 #resetea la pocision en x
         self.game_speed = 20
         self.colors = 0
         
@@ -63,11 +64,11 @@ class Game:
                 self.running = False
 
     def update(self):
-        user_input = pygame.key.get_pressed()
-        self.player.update(user_input)
+        self.user_input = pygame.key.get_pressed()
+        self.player.update(self.user_input)
         self.obstacle_manager.update(self, self.on_death)  
         self.score.update(self)
-        self.power_up_manager.update(self.game_speed, self.score.score , self.player)
+        self.power_up_manager.update(self.game_speed, self.player)
         
     def draw(self):
         self.clock.tick(FPS)
@@ -119,8 +120,14 @@ class Game:
             self.x_pos_bg = 0
         self.x_pos_bg -= self.game_speed
         
-    def on_death(self):
-        if self.player.type != SHIELD_TYPE:
+    def on_death(self, obstcacle, obstacles):
+        if self.player.type == SHIELD_TYPE:
+            pass # seguir el codigo sin nunguna accion 
+        elif self.player.type == HAMMER_TYPE:
+            obstacles.remove(obstcacle) # remueve el obstaculo
+        elif self.player.type == HEART_TYPE:
+            pass
+        else:
             self.player.dead() #llamar la imagen
             pygame.time.delay(100) #al tocar el obstaculo 
             self.playing = False

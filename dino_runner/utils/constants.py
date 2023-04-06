@@ -25,10 +25,9 @@ RUNNING_SHIELD = [
     pygame.image.load(os.path.join(IMG_DIR, "Dino/DinoRun2.png")),
 ]
 
-RUNNING_HAMMER = [
+RUN_HAMMER = [
     pygame.image.load(os.path.join(IMG_DIR, "Dino/DinoRun1Hammer.png")),
     pygame.image.load(os.path.join(IMG_DIR, "Dino/DinoRun2Hammer1.png")),
-
 ]
 
 JUMPING = pygame.image.load(os.path.join(IMG_DIR, "Dino/DinoJump.png"))
@@ -90,3 +89,12 @@ STAR= pygame.image.load(os.path.join(IMG_DIR, 'Other/estrella.png'))
 RESET= pygame.image.load(os.path.join(IMG_DIR, 'Other/Reset.png'))
 DEFAULT_TYPE = "default"
 SHIELD_TYPE = "shield"
+HEART_TYPE = "heart"
+HAMMER_TYPE = "hammer"
+
+HAMMER_LIST = [
+    pygame.image.load(os.path.join(IMG_DIR, 'Other/hammer1.png')),
+    pygame.image.load(os.path.join(IMG_DIR, 'Other/hammer2.png')),
+    pygame.image.load(os.path.join(IMG_DIR, 'Other/hammer3.png')),
+    pygame.image.load(os.path.join(IMG_DIR, 'Other/hammer4.png')),
+]

@@ -18,7 +18,7 @@ class ObstacleManager():
     for obstacle in self.obstacles:
       obstacle.update(game.game_speed, self.obstacles)
       if obstacle.rect.colliderect(game.player.rect):
-        on_death()
+        on_death(obstacle, self.obstacles) #busca, cual es el objeto cuando hay colision 
   
   def draw(self, screen):
     for obstacle in self.obstacles:

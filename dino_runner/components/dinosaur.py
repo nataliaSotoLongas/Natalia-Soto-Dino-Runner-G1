@@ -1,15 +1,14 @@
 import pygame
 from pygame import Surface
 from pygame.sprite import Sprite
-
-from dino_runner.utils.constants import RUNNING , JUMPING , DUCKING ,DEAD ,DEFAULT_TYPE, SHIELD_TYPE, RUNNING_SHIELD, JUMPING_SHIELD, DUCKING_SHIELD
+from dino_runner.utils.constants import RUNNING ,DEAD, JUMPING , DUCKING ,DEFAULT_TYPE, SHIELD_TYPE, RUNNING_SHIELD, JUMPING_SHIELD, DUCKING_SHIELD, HAMMER_TYPE , RUN_HAMMER, JUMPING_HAMMER, DUCKING_HAMMER, HEART_TYPE, HAMMER_LIST
 
 DINO_JUMPING = "JUMPING"
 DINO_RUNNING = "RUNNING"
 DINO_DUCKING = "DUCKING"
-IMG_RUNNING = {DEFAULT_TYPE: RUNNING, SHIELD_TYPE:RUNNING_SHIELD}
-IMG_JUMPING = {DEFAULT_TYPE: JUMPING, SHIELD_TYPE:JUMPING_SHIELD}
-IMG_DUCKING = {DEFAULT_TYPE: DUCKING, SHIELD_TYPE:DUCKING_SHIELD}
+IMG_RUNNING = {DEFAULT_TYPE: RUNNING, SHIELD_TYPE:RUNNING_SHIELD, HAMMER_TYPE: RUN_HAMMER , HEART_TYPE: RUNNING }
+IMG_JUMPING = {DEFAULT_TYPE: JUMPING, SHIELD_TYPE:JUMPING_SHIELD, HAMMER_TYPE: JUMPING_HAMMER, HEART_TYPE: JUMPING}
+IMG_DUCKING = {DEFAULT_TYPE: DUCKING, SHIELD_TYPE:DUCKING_SHIELD, HAMMER_TYPE: DUCKING_HAMMER, HEART_TYPE: DUCKING}
 
 class Dinosaur(Sprite): 
     POS_X=80
@@ -21,18 +20,11 @@ class Dinosaur(Sprite):
         self.type = DEFAULT_TYPE
         self.update_image(IMG_DUCKING[self.type][0])
         self.image = RUNNING[0]
-        self.position()
         self.step = 0
         self.action = DINO_RUNNING 
         self.jump_velocity = self.JUMPING_VELOCITY
         self.power_up_time = 0
         self.time_to_show = 0
-        
-    def position(self):
-        self.rect = self.image.get_rect()
-        self.rect.x = self.POS_X
-        self.rect.y = self.POS_Y
-       
           
     def update(self, user_input):
         if self.action == DINO_RUNNING:
@@ -42,7 +34,7 @@ class Dinosaur(Sprite):
         elif self.action == DINO_DUCKING:
             self.duck()
             
-        #Saltar     
+        #Saltar
         if self.action !=  DINO_JUMPING:
             if user_input[pygame.K_UP]:
                 pygame.mixer.music.load('dino_runner/components/music/jump.mp3')
@@ -50,6 +42,14 @@ class Dinosaur(Sprite):
                 self.action =   DINO_JUMPING
             elif user_input[pygame.K_DOWN]:
                 self.action =   DINO_DUCKING
+            elif user_input[pygame.K_DOWN]:
+                self.action =   DINO_DUCKING
+            elif user_input[pygame.K_DOWN]:
+                self.action =   DINO_DUCKING
+            elif user_input[pygame.K_LEFT] and self.action == DINO_RUNNING: # no se puede mover
+                self.left()
+            elif user_input[pygame.K_RIGHT] and self.action == DINO_RUNNING:
+                self.right()
             else:
                 self.action = DINO_RUNNING 
                        
@@ -58,7 +58,6 @@ class Dinosaur(Sprite):
            
     def run(self):
         self.update_image(IMG_RUNNING[self.type][self.step // 5]) 
-        self.position()
         self.step += 1
         
     def jump(self):
@@ -75,9 +74,24 @@ class Dinosaur(Sprite):
     def duck(self):
         #bajar
         self.update_image(IMG_DUCKING[self.type][self.step // 5])
-        self.position()
         self.rect.y = self.POS_Y_DUCK
         self.step += 1
+    
+    def right(self): # ir delante 
+        self.POS_X += 5
+        self.rect = self.image.get_rect() # actualizar la imagen
+        self.rect.x = self.POS_X
+        self.rect.y = self.POS_Y
+        if self.POS_X >= 1010:
+          self.POS_X = 1010
+
+    def left(self): # ir atras
+        self.POS_X -= 5
+        self.rect = self.image.get_rect()
+        self.rect.x = self.POS_X
+        self.rect.y = self.POS_Y
+        if self.POS_X <= 0:
+            self.POS_X = 0
         
     def draw(self, screen:Surface):
         screen.blit(self.image, (self.rect.x, self.rect.y))
@@ -88,7 +102,7 @@ class Dinosaur(Sprite):
             self.rect =  image.get_rect()
             self.rect.x = pos_x or self.POS_X
             self.rect.y =  pos_y or self.POS_Y
-          
+            
     def dead(self):
         #TRAER LA IMAGEN DE DEAD
         self.image=DEAD
@@ -98,7 +112,7 @@ class Dinosaur(Sprite):
     def on_pick_power_up(self, power_up):
         self.type =  power_up.type
         
-    
+
     def draw_power_up(self, message, colors):
         if self.type != DEFAULT_TYPE:
             self.time_to_show += 1
@@ -111,5 +125,3 @@ class Dinosaur(Sprite):
                 if self.time_to_show >= 100:
                     self.time_to_show = 0
                     self.type = DEFAULT_TYPE
-    
-   
