@@ -1,11 +1,15 @@
 import pygame
 from pygame import Surface
 from pygame.sprite import Sprite
-from dino_runner.utils.constants import RUNNING , JUMPING , DUCKING ,DEAD
+
+from dino_runner.utils.constants import RUNNING , JUMPING , DUCKING ,DEAD ,DEFAULT_TYPE, SHIELD_TYPE, RUNNING_SHIELD, JUMPING_SHIELD, DUCKING_SHIELD
 
 DINO_JUMPING = "JUMPING"
 DINO_RUNNING = "RUNNING"
 DINO_DUCKING = "DUCKING"
+IMG_RUNNING = {DEFAULT_TYPE: RUNNING, SHIELD_TYPE:RUNNING_SHIELD}
+IMG_JUMPING = {DEFAULT_TYPE: JUMPING, SHIELD_TYPE:JUMPING_SHIELD}
+IMG_DUCKING = {DEFAULT_TYPE: DUCKING, SHIELD_TYPE:DUCKING_SHIELD}
 
 class Dinosaur(Sprite): 
     POS_X=80
@@ -14,11 +18,14 @@ class Dinosaur(Sprite):
     JUMPING_VELOCITY = 8.5
     
     def __init__(self):
+        self.type = DEFAULT_TYPE
+        self.update_image(IMG_RUNNING[self.type][0])
         self.image = RUNNING[0]
         self.position()
         self.step = 0
         self.action = DINO_RUNNING 
         self.jump_velocity = self.JUMPING_VELOCITY
+        self.power_up_time = 0
         
     def position(self):
         self.rect = self.image.get_rect()
@@ -49,13 +56,13 @@ class Dinosaur(Sprite):
            self.step = 0
            
     def run(self):
-        self.image = RUNNING[self.step // 5]
+        self.update_image(IMG_RUNNING[self.type][self.step // 5]) 
         self.position()
         self.step += 1
         
     def jump(self):
         #jump
-        self.image = JUMPING
+        self.update_image(IMG_JUMPING[self.type][self.step // 5])
         self.rect.y -= self.jump_velocity * 4
         self.jump_velocity -= 0.8
         if self.jump_velocity < -self.JUMPING_VELOCITY:
@@ -65,7 +72,7 @@ class Dinosaur(Sprite):
             
     def duck(self):
         #bajar
-        self.image = DUCKING[self.step // 5]
+        self.update_image(IMG_DUCKING[self.type][self.step // 5])
         self.position()
         self.rect.y = self.POS_Y_DUCK
         self.step += 1
@@ -73,13 +80,32 @@ class Dinosaur(Sprite):
     def draw(self, screen:Surface):
         screen.blit(self.image, (self.rect.x, self.rect.y))
         
-        
+    def update_image(self, image:pygame.Surface , pos_y = None, pos_x = None,on_death = False):
+        self.image = image
+        if not on_death:
+            self.rect =  image.get_rect()
+            self.rect.x = pos_x or self.POS_X
+            self.rect.y =  pos_y or self.POS_Y
+          
     def dead(self):
         #TRAER LA IMAGEN DE DEAD
         self.image=DEAD
         pygame.mixer.music.load('dino_runner/components/music/dead.mp3')
         pygame.mixer.music.play()
         
+
+    def on_pick_power_up(self, power_up):
+        self.type =  power_up.type
+        self.power_up_time_up = power_up.start_time + power_up.duration * 1000
     
+    def draw_power_up(self, message):
+        if self.type != DEFAULT_TYPE:
+            time_to_show = round(
+                (self.power_up_time_up - pygame.time.get_ticks()) / 1000, 2)
+        if time_to_show >= 0:
+            message(f"{self.type.capitalize()} enabled for {time_to_show} seconds.", 500, 50)
+        else:
+            self.type = DEFAULT_TYPE
+            self.power_up_time_up = 0
     
    
