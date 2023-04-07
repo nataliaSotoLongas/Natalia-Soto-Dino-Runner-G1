@@ -14,22 +14,21 @@ class PowerUpManager():
         self.when_appers = 0
         
     def generete_power_ups(self, player):
-        if not self.power_ups and self.POWER_SHIELD == random.randint(0,300) and player.type == DEFAULT_TYPE:
-            self.power_ups.append(Shield())
-        elif  not self.power_ups and self.POWER_HEART == random.randint(0,300) and player.type == DEFAULT_TYPE: # los agrega a la lista 
-            self.power_ups.append(Heart())
-        elif not self.power_ups and self.POWER_HAMMER == random.randint(0,300) and player.type == DEFAULT_TYPE: # los agrega a la lista 
-            self.power_ups.append(Hammer())
+        if player.type == DEFAULT_TYPE:
+            if not self.power_ups and  random.randint(0,300)%10 == 0 :
+                 self.power_ups.append(Shield())
+            elif  not self.power_ups and random.randint(0,50) %10 ==0 : # los agrega a la lista 
+                 self.power_ups.append(Heart())
+            elif not self.power_ups and random.randint(0,50) %10 == 0 : # los agrega a la lista 
+                self.power_ups.append(Hammer())
             
-    def update(self, game_speed, player):
+    def update(self, game_speed, player,on_powerd):
         self.generete_power_ups( player)
         for power_up in self.power_ups:
             power_up.update(game_speed, self.power_ups)
             if power_up.rect.colliderect(player.rect):
-                power_up.start_time = pygame.time.get_ticks()
-                player.on_pick_power_up(power_up)
-                self.power_ups.remove(power_up)
-        
+                on_powerd(power_up, self.power_ups)
+                
     def draw(self, screen):
         for power_up in self.power_ups:
             power_up.draw(screen)

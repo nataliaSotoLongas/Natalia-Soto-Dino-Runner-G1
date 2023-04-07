@@ -1,7 +1,7 @@
 import pygame
 from pygame import Surface
 from pygame.sprite import Sprite
-from dino_runner.utils.constants import RUNNING ,DEAD, JUMPING , DUCKING ,DEFAULT_TYPE, SHIELD_TYPE, RUNNING_SHIELD, JUMPING_SHIELD, DUCKING_SHIELD, HAMMER_TYPE , RUN_HAMMER, JUMPING_HAMMER, DUCKING_HAMMER, HEART_TYPE, HAMMER_LIST
+from dino_runner.utils.constants import RUNNING ,DEAD, JUMPING , DUCKING ,DEFAULT_TYPE, SHIELD_TYPE, RUNNING_SHIELD, JUMPING_SHIELD, DUCKING_SHIELD, HAMMER_TYPE , RUN_HAMMER, JUMPING_HAMMER, DUCKING_HAMMER, HEART_TYPE
 
 DINO_JUMPING = "JUMPING"
 DINO_RUNNING = "RUNNING"
@@ -19,14 +19,13 @@ class Dinosaur(Sprite):
     def __init__(self):
         self.type = DEFAULT_TYPE
         self.update_image(IMG_DUCKING[self.type][0])
-        self.image = RUNNING[0]
         self.step = 0
         self.action = DINO_RUNNING 
         self.jump_velocity = self.JUMPING_VELOCITY
         self.power_up_time = 0
         self.time_to_show = 0
           
-    def update(self, user_input):
+    def update(self, user_input,hammer_fly, player):
         if self.action == DINO_RUNNING:
             self.run()
         elif self.action == DINO_JUMPING:
@@ -42,14 +41,12 @@ class Dinosaur(Sprite):
                 self.action =   DINO_JUMPING
             elif user_input[pygame.K_DOWN]:
                 self.action =   DINO_DUCKING
-            elif user_input[pygame.K_DOWN]:
-                self.action =   DINO_DUCKING
-            elif user_input[pygame.K_DOWN]:
-                self.action =   DINO_DUCKING
             elif user_input[pygame.K_LEFT] and self.action == DINO_RUNNING: # no se puede mover
                 self.left()
             elif user_input[pygame.K_RIGHT] and self.action == DINO_RUNNING:
                 self.right()
+            elif user_input[pygame.K_r] and player.type == HAMMER_TYPE:
+                hammer_fly.add()
             else:
                 self.action = DINO_RUNNING 
                        
@@ -96,7 +93,7 @@ class Dinosaur(Sprite):
     def draw(self, screen:Surface):
         screen.blit(self.image, (self.rect.x, self.rect.y))
         
-    def update_image(self, image:pygame.Surface , pos_y = None, pos_x = None,on_death = False):
+    def update_image(self, image:Surface , pos_y = None, pos_x = None,on_death = False):
         self.image = image
         if not on_death:
             self.rect =  image.get_rect()

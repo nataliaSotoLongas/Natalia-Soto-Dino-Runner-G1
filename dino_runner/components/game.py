@@ -1,10 +1,12 @@
 import pygame
 import random
+from dino_runner.components.power_ups.heart import Heart
+from dino_runner.components.power_ups.hammer_fly import Hammerfly
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.score import Score
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 from dino_runner.components.power_ups.power_up_manager import PowerUpManager
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, CLOUD, GAMEOVER, RESET , ICON_1 , SUN, MOON,STAR, SHIELD_TYPE, HAMMER_TYPE, HEART_TYPE,HAMMER_LIST
+from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, CLOUD, GAMEOVER, RESET , ICON_1 , SUN, MOON,STAR, SHIELD_TYPE, HAMMER_TYPE, HEART_TYPE, DEFAULT_TYPE, HEART
 
 
 class Game:
@@ -23,12 +25,16 @@ class Game:
         self.death_count = 0
         self.player = Dinosaur()
         self.score = Score()
+        self.hammer_fly = Hammerfly()
         self.death = 0
         self.highest_score = 0 #Tiempo record 
         self.icon = ICON_1[0]
         self.step = 0
         self.colors = 0 # cambiar de color
         self.power_up_manager = PowerUpManager()
+        self.life = []
+        self.heart_x = 10
+        self.posicion = []
 
     def run(self):
         # Game loop: events - update - draw
@@ -46,6 +52,7 @@ class Game:
         self.player.POS_X = 80 #resetea la pocision en x
         self.game_speed = 20
         self.colors = 0
+        self.hammer_fly.reset()
         
         
     def play(self):
@@ -65,10 +72,11 @@ class Game:
 
     def update(self):
         self.user_input = pygame.key.get_pressed()
-        self.player.update(self.user_input)
+        self.player.update(self.user_input, self.hammer_fly, self.player)
         self.obstacle_manager.update(self, self.on_death)  
         self.score.update(self)
-        self.power_up_manager.update(self.game_speed, self.player)
+        self.hammer_fly.update(self.game_speed)
+        self.power_up_manager.update(self.game_speed, self.player, self.on_powerd)
         
     def draw(self):
         self.clock.tick(FPS)
@@ -77,6 +85,9 @@ class Game:
         self.draw_background()
         #llamamos las imagenes
         self.draw_clouds()
+        self.hammer_fly.draw(self.screen)
+        #self.hammer_fly.draw_homer(self.screen)
+        self.heart_generator_draw()
         self.player.draw(self.screen)
         self.player.draw_power_up(self.message,self.colors)
         self.obstacle_manager.draw(self.screen)
@@ -97,6 +108,12 @@ class Game:
         else:
             self.screen.fill((255,255,255))
             self.screen.blit(SUN, (500,10)) # Dibujar el sol
+    
+    def heart_generator_draw(self):
+        for life in self.life: 
+            self.heart_x = 10
+            self.screen.blit(life, (150, self.heart_x))
+            break
           
     #dibujar las imagenes
     def draw_clouds(self):
@@ -124,7 +141,7 @@ class Game:
         if self.player.type == SHIELD_TYPE:
             pass # seguir el codigo sin nunguna accion 
         elif self.player.type == HAMMER_TYPE:
-            obstacles.remove(obstcacle) # remueve el obstaculo
+            self.obstacle_manager.validate()
         elif self.player.type == HEART_TYPE:
             pass
         else:
@@ -132,6 +149,16 @@ class Game:
             pygame.time.delay(100) #al tocar el obstaculo 
             self.playing = False
             self.death_count +=1
+            
+    def on_powerd(self,power_up, power_ups):
+        if HEART_TYPE == self.player.type:
+            self.life.append(HEART)
+            self.heart_generator_draw()
+            self.type = DEFAULT_TYPE
+        else:
+            power_up.start_time = pygame.time.get_ticks()
+            self.player.on_pick_power_up(power_up)
+            power_ups.remove(power_up)
     
     #para hacer caminar el dinosaurio en el menu   
     def Icon_walk(self):
